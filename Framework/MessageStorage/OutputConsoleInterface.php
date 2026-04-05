@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\Core\Framework\MessageStorage;
+
+use Symfony\Component\Console\Output\OutputInterface;
+
+/**
+ * Interface OutputConsoleInterface used to output
+ * data to console log.
+ * @deprecated in favour of
+ * @see \Byte8\Core\Framework\MessageCollectorInterface
+ */
+interface OutputConsoleInterface
+{
+    public const LIMIT = 1000;
+
+    /**
+     * @param OutputInterface $output
+     * @param array $data
+     */
+    public function execute(OutputInterface $output, array $data): void;
+}

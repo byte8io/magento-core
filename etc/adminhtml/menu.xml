@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Byte8_Core::byte8_core"
+             title="Soft Commerce"
+             translate="title"
+             module="Byte8_Core"
+             sortOrder="55"
+             dependsOnModule="Byte8_Core"
+             resource="Byte8_Core::byte8_core"/>
+        <add id="Byte8_Core::config"
+             title="Configuration"
+             translate="title"
+             module="Byte8_Core"
+             sortOrder="10"
+             parent="Byte8_Core::byte8_core"
+             resource="Byte8_Core::configuration"/>
+        <add id="Byte8_Core::config_byte8_core"
+             title="Core Settings"
+             translate="title"
+             module="Byte8_Core"
+             sortOrder="0"
+             parent="Byte8_Core::config"
+             action="adminhtml/system_config/edit/section/byte8_core/"
+             resource="Byte8_Core::system_config"/>
+    </menu>
+</config>

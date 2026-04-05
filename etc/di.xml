@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- global framework interfaces :: data mapping-->
+    <preference for="Byte8\Core\Framework\DataMap\StatusToFaMappingInterface" type="Byte8\Core\Framework\DataMap\StatusToFaMapping"/>
+    <preference for="Byte8\Core\Framework\DataMap\StatusToLabelMappingInterface" type="Byte8\Core\Framework\DataMap\StatusToLabelMapping"/>
+
+    <!-- global framework interfaces :: data storage-->
+    <preference for="Byte8\Core\Framework\DataStorageInterface" type="Byte8\Core\Framework\DataStorage"/>
+    <preference for="Byte8\Core\Framework\EntityDataStorageInterface" type="Byte8\Core\Framework\EntityDataStorage"/>
+    <preference for="Byte8\Core\Framework\DataStorage\OutputArrayInterface" type="Byte8\Core\Framework\DataStorage\OutputArray"/>
+    <preference for="Byte8\Core\Framework\DataStorage\OutputArrayPrintReadableInterface" type="Byte8\Core\Framework\DataStorage\OutputArrayPrintReadable"/>
+    <preference for="Byte8\Core\Framework\DataStorage\OutputHtmlInterface" type="Byte8\Core\Framework\DataStorage\OutputHtml"/>
+    <preference for="Byte8\Core\Framework\DataStorage\OutputMessageManagerInterface" type="Byte8\Core\Framework\DataStorage\OutputMessageManager"/>
+    <preference for="Byte8\Core\Framework\DataStorage\StatusPredictionInterface" type="Byte8\Core\Framework\DataStorage\StatusPrediction"/>
+    <preference for="Byte8\Core\Framework\IsAssociativeArrayInterface" type="Byte8\Core\Framework\IsAssociativeArray"/>
+    <preference for="Byte8\Core\Framework\IsMultidimensionalArrayInterface" type="Byte8\Core\Framework\IsMultidimensionalArray"/>
+    <preference for="Byte8\Core\Framework\SearchMultidimensionalArrayInterface" type="Byte8\Core\Framework\SearchMultidimensionalArray"/>
+    <preference for="Byte8\Core\Framework\Array\FlattenArrayInterface" type="Byte8\Core\Framework\Array\FlattenArray"/>
+    <preference for="Byte8\Core\Framework\Filter\ParseStringInterface" type="Byte8\Core\Framework\Filter\ParseString"/>
+
+    <!-- global framework interfaces :: DB -->
+    <preference for="Byte8\Core\Framework\DB\QueryResultDataTypeConverterInterface" type="Byte8\Core\Framework\DB\QueryResultDataTypeConverter"/>
+
+    <!-- global framework interfaces :: message storage -->
+    <preference for="Byte8\Core\Framework\MessageCollectorInterface" type="Byte8\Core\Framework\MessageCollector"/>
+    <preference for="Byte8\Core\Framework\MessageStorageInterface" type="Byte8\Core\Framework\MessageStorage"/>
+
+    <!-- global config ::: interface | repository | management -->
+    <preference for="Byte8\Core\Model\Config\DateTimeLocaleInterface" type="Byte8\Core\Model\Config\DateTimeLocale"/>
+    <preference for="Byte8\Core\Model\Config\DeveloperInterface" type="Byte8\Core\Model\Config\Developer"/>
+
+    <!-- email notification service -->
+    <preference for="Byte8\Core\Api\EmailNotificationInterface" type="Byte8\Core\Model\EmailNotification"/>
+
+    <!-- Catalog modules ::: interface | repository -->
+    <preference for="Byte8\Core\Model\Catalog\FileImageManagementInterface" type="Byte8\Core\Model\Catalog\FileImageManagement"/>
+    <preference for="Byte8\Core\Model\Catalog\GetCatalogCategoryDataInterface" type="Byte8\Core\Model\Catalog\GetCatalogCategoryData"/>
+    <preference for="Byte8\Core\Model\Catalog\GetConfigurableAttributeOptionsInterface" type="Byte8\Core\Model\Catalog\GetConfigurableAttributeOptions"/>
+    <preference for="Byte8\Core\Model\Catalog\GetProductAttributeDataInterface" type="Byte8\Core\Model\Catalog\GetProductAttributeData"/>
+    <preference for="Byte8\Core\Model\Catalog\IsCatalogProductSuperLinkInterface" type="Byte8\Core\Model\Catalog\IsCatalogProductSuperLink"/>
+    <preference for="Byte8\Core\Model\Catalog\MediaManagementInterface" type="Byte8\Core\Model\Catalog\MediaManagement"/>
+    <preference for="Byte8\Core\Model\Catalog\MediaChecksumComputeServiceInterface" type="Byte8\Core\Model\Catalog\MediaChecksumComputeService"/>
+    <preference for="Byte8\Core\Model\Catalog\SkuStorageInterface" type="Byte8\Core\Model\Catalog\SkuStorage"/>
+
+    <!-- Customer modules :: interface | repository -->
+    <preference for="Byte8\Core\Model\Customer\GetCustomerRawDataInterface" type="Byte8\Core\Model\Customer\GetCustomerRawData"/>
+
+    <!-- Eav modules ::: interface | repository -->
+    <preference for="Byte8\Core\Model\Eav\AttributeManagementInterface" type="Byte8\Core\Model\Eav\AttributeManagement"/>
+    <preference for="Byte8\Core\Model\Eav\GetAttributeBackendTableInterface" type="Byte8\Core\Model\Eav\GetAttributeBackendTable"/>
+    <preference for="Byte8\Core\Model\Eav\GetAttributeEntityTypeDataInterface" type="Byte8\Core\Model\Eav\GetAttributeEntityTypeData"/>
+    <preference for="Byte8\Core\Model\Eav\GetAttributeEntityTypeIdInterface" type="Byte8\Core\Model\Eav\GetAttributeEntityTypeId"/>
+    <preference for="Byte8\Core\Model\Eav\GetAttributeSetByAttributeInterface" type="Byte8\Core\Model\Eav\GetAttributeSetByAttribute"/>
+    <preference for="Byte8\Core\Model\Eav\GetAttributeSetDataInterface" type="Byte8\Core\Model\Eav\GetAttributeSetData"/>
+    <preference for="Byte8\Core\Model\Eav\GetDefaultAttributeSetIdInterface" type="Byte8\Core\Model\Eav\GetDefaultAttributeSetId"/>
+    <preference for="Byte8\Core\Model\Eav\GetEavAttributeOptionValueDataInterface" type="Byte8\Core\Model\Eav\GetEavAttributeOptionValueData"/>
+    <preference for="Byte8\Core\Model\Eav\GetEntityTypeIdInterface" type="Byte8\Core\Model\Eav\GetEntityTypeId"/>
+
+    <!-- vendor module list ::: interface -->
+    <preference for="Byte8\Core\Model\ModuleListProviderInterface" type="Byte8\Core\Model\ModuleListProvider"/>
+
+    <!-- model source options ::: interface -->
+    <preference for="Byte8\Core\Model\Source\StatusInterface" type="Byte8\Core\Model\Source\Status"/>
+
+    <!-- cron heartbeat ::: interface -->
+    <preference for="Byte8\Core\Model\Cron\CronHeartbeatInterface" type="Byte8\Core\Model\Cron\CronHeartbeat"/>
+
+    <!-- model utilities -->
+    <preference for="Byte8\Core\Model\Utils\GetEntityMetadataInterface" type="Byte8\Core\Model\Utils\GetEntityMetadata"/>
+
+    <!-- Store modules ::: interface | repository -->
+    <preference for="Byte8\Core\Model\Store\WebsiteStorageInterface" type="Byte8\Core\Model\Store\WebsiteStorage"/>
+
+    <!-- Logger -->
+    <preference for="Byte8\Core\Logger\LogProcessorInterface" type="Byte8\Core\Logger\LogProcessor"/>
+    <type name="Byte8\Core\Logger\Handler\RotationSteamHandler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <virtualType name="Byte8\Core\VirtualStreamHandler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">var/log/byte8/debug.log</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Byte8\Core\VirtualRotationStreamHandler" type="Byte8\Core\Logger\Handler\RotationSteamHandler">
+        <arguments>
+            <argument name="fileName" xsi:type="string">var/log/byte8/debug.log</argument>
+        </arguments>
+    </virtualType>
+    <type name="Byte8\Core\Logger\LogProcessor">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="debug" xsi:type="object">Byte8\Core\VirtualStreamHandler</item>
+                <item name="rotation_debug" xsi:type="object">Byte8\Core\VirtualRotationStreamHandler</item>
+                <item name="mail" xsi:type="object">Byte8\Core\Logger\Handler\MailStreamHandler</item>
+            </argument>
+        </arguments>
+    </type>
+
+    <!-- CLI -->
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="pub:static:clean" xsi:type="object">Byte8\Core\Console\Command\CleanStaticViewFiles</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

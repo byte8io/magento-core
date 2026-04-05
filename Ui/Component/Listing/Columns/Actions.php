@@ -1,0 +1,83 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\Core\Ui\Component\Listing\Columns;
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Framework\UrlInterface;
+use Magento\Ui\Component\Listing\Columns\Column;
+
+/**
+ * @inheritDoc
+ */
+class Actions extends Column
+{
+    /**
+     * @param Escaper $escaper
+     * @param UrlInterface $urlBuilder
+     * @param ContextInterface $context
+     * @param UiComponentFactory $uiComponentFactory
+     * @param array $components
+     * @param array $data
+     */
+    public function __construct(
+        protected readonly Escaper $escaper,
+        protected readonly UrlInterface $urlBuilder,
+        ContextInterface $context,
+        UiComponentFactory $uiComponentFactory,
+        array $components = [],
+        array $data = []
+    ) {
+        parent::__construct($context, $uiComponentFactory, $components, $data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function prepareDataSource(array $dataSource): array
+    {
+        if (!isset($dataSource['data']['items'])) {
+            return $dataSource;
+        }
+
+        $identifierField = $this->getData('config/identifierField') ?: 'entity_id';
+        $urlPath = $this->getData('config/urlPath') ?: '#';
+        $urlEntityParamName = $this->getData('config/urlEntityParamName') ?: 'id';
+        $label = $this->getData('config/actionLabel') ?: __('Manage');
+        $confirmMessage = $this->getData('config/confirmMessage');
+        $confirmTitle = $this->getData('config/confirmTitle') ?: __('Confirm current action');
+        foreach ($dataSource['data']['items'] as &$item) {
+            if (!isset($item[$identifierField])) {
+                continue;
+            }
+
+            $item[$this->getData('name')] = [
+                'action' => [
+                    'href' => $this->urlBuilder->getUrl(
+                        $urlPath,
+                        [
+                            $urlEntityParamName => $item[$identifierField],
+                        ]
+                    ),
+                    'label' => $label
+                ]
+            ];
+
+            if (null !== $confirmMessage) {
+                $item[$this->getData('name')]['action']['confirm'] = [
+                    'title' => __($this->escaper->escapeHtml($confirmTitle)),
+                    'message' => __($this->escaper->escapeHtml($confirmMessage))
+                ];
+            }
+        }
+
+        return $dataSource;
+    }
+}

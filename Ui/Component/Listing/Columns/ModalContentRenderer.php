@@ -1,0 +1,71 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\Core\Ui\Component\Listing\Columns;
+
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
+use Byte8\Core\Framework\DataStorage\OutputArrayPrintReadableInterface;
+use Byte8\Core\Framework\DataStorage\StatusPredictionInterface;
+
+/**
+ * @inheritDoc
+ */
+class ModalContentRenderer extends Column
+{
+    /**
+     * @param OutputArrayPrintReadableInterface $outputArrayPrintReadable
+     * @param SerializerInterface $serializer
+     * @param StatusPredictionInterface $statusPrediction
+     * @param ContextInterface $context
+     * @param UiComponentFactory $uiComponentFactory
+     * @param array $components
+     * @param array $data
+     */
+    public function __construct(
+        private readonly OutputArrayPrintReadableInterface $outputArrayPrintReadable,
+        private readonly SerializerInterface $serializer,
+        private readonly StatusPredictionInterface $statusPrediction,
+        ContextInterface $context,
+        UiComponentFactory $uiComponentFactory,
+        array $components = [],
+        array $data = []
+    ) {
+        parent::__construct($context, $uiComponentFactory, $components, $data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function prepareDataSource(array $dataSource): array
+    {
+        $componentIndex = $this->getData('name');
+        foreach ($dataSource['data']['items'] ?? [] as $index => $item) {
+            if (!$data = $item[$componentIndex] ?? null) {
+                continue;
+            }
+
+            try {
+                $data = $this->serializer->unserialize($data);
+            } catch (\InvalidArgumentException $e) {
+                $data = [$data];
+            }
+
+            $html = $this->outputArrayPrintReadable->execute($data);
+            $dataSource['data']['items'][$index][$componentIndex] = $html;
+
+            if ($status = $this->statusPrediction->execute($data, '')) {
+                $dataSource['data']['items'][$index]['cell_status'] = $status;
+            }
+        }
+
+        return $dataSource;
+    }
+}

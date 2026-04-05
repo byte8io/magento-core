@@ -1,0 +1,60 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\Core\Ui\Component\Listing\Columns;
+
+use Magento\Framework\View\Element\UiComponent\ContextInterface;
+use Magento\Framework\View\Element\UiComponentFactory;
+use Magento\Ui\Component\Listing\Columns\Column;
+use Byte8\Core\Framework\DataMap\StatusToFaMappingInterface;
+use Byte8\Core\Framework\DataMap\StatusToLabelMappingInterface;
+
+/**
+ * @inheritDoc
+ */
+class StatusRenderer extends Column
+{
+    /**
+     * @param StatusToFaMappingInterface $statusToFaMapping
+     * @param StatusToLabelMappingInterface $statusToLabelMapping
+     * @param ContextInterface $context
+     * @param UiComponentFactory $uiComponentFactory
+     * @param array $components
+     * @param array $data
+     */
+    public function __construct(
+        private readonly StatusToFaMappingInterface $statusToFaMapping,
+        private readonly StatusToLabelMappingInterface $statusToLabelMapping,
+        ContextInterface $context,
+        UiComponentFactory $uiComponentFactory,
+        array $components = [],
+        array $data = []
+    ) {
+        parent::__construct($context, $uiComponentFactory, $components, $data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function prepareDataSource(array $dataSource): array
+    {
+        $componentIndex = $this->getData('name');
+        foreach ($dataSource['data']['items'] ?? [] as $index => $item) {
+            if (!isset($item[$componentIndex])) {
+                continue;
+            }
+
+            $value = $item[$componentIndex];
+            $dataSource['data']['items'][$index][$componentIndex] = $this->statusToLabelMapping->execute($value);
+            $dataSource['data']['items'][$index]['cell_status'] = $value;
+            $dataSource['data']['items'][$index]['cell_attribute'] = $this->statusToFaMapping->execute($value);
+        }
+
+        return $dataSource;
+    }
+}

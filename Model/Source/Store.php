@@ -1,0 +1,57 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\Core\Model\Source;
+
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Store\Api\StoreRepositoryInterface;
+
+/**
+ * @inheritDoc
+ */
+class Store implements OptionSourceInterface
+{
+    /**
+     * @var array
+     */
+    private array $options = [];
+
+    /**
+     * @param StoreRepositoryInterface $storeRepository
+     */
+    public function __construct(
+        private readonly StoreRepositoryInterface $storeRepository
+    ) {
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllOptions()
+    {
+        return $this->storeRepository->getList();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function toOptionArray(): array
+    {
+        if (!$this->options) {
+            $stores = $this->storeRepository->getList();
+            foreach ($stores as $store) {
+                $this->options[] = [
+                    'value' => $store->getId(),
+                    'label' => $store->getName()
+                ];
+            }
+        }
+
+        return $this->options;
+    }
+}

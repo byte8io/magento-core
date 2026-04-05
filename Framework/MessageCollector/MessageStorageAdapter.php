@@ -1,0 +1,190 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\Core\Framework\MessageCollector;
+
+use Byte8\Core\Framework\MessageCollectorInterface;
+use Byte8\Core\Framework\MessageStorageInterface;
+use Byte8\Core\Model\Source\StatusInterface;
+
+/**
+ * Adapter to use MessageCollector as MessageStorage
+ *
+ * This allows gradual migration from MessageStorage to MessageCollector
+ * by implementing the MessageStorage interface using a MessageCollector backend
+ */
+class MessageStorageAdapter implements MessageStorageInterface
+{
+    /**
+     * @param MessageCollectorInterface $messageCollector
+     */
+    public function __construct(
+        private readonly MessageCollectorInterface $messageCollector
+    ) {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getData(mixed $entity = null, array $status = []): array
+    {
+        $messages = null !== $entity
+            ? $this->messageCollector->getEntityMessages($entity)
+            : $this->messageCollector->getMessages();
+
+        if (empty($status)) {
+            return $messages;
+        }
+
+        // Filter by status
+        $result = [];
+        foreach ($messages as $entityId => $entityMessages) {
+            $filtered = array_filter($entityMessages, function($msg) use ($status) {
+                return isset($msg['status']) && in_array($msg['status'], $status);
+            });
+
+            if (!empty($filtered)) {
+                $result[$entityId] = $filtered;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getDataByStatus(string $status): array
+    {
+        return $this->getData(null, [$status]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addData(mixed $message, mixed $entity, string $status = StatusInterface::SUCCESS, array $metadata = []): static
+    {
+        // Convert Phrase to string if needed
+        if ($message instanceof \Magento\Framework\Phrase) {
+            $message = $message->render();
+        }
+
+        $this->messageCollector->addMessage(
+            $entity,
+            (string)$message,
+            $status,
+            $metadata
+        );
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setData(array $data): static
+    {
+        // Reset collector and add all data
+        $this->messageCollector->reset();
+
+        foreach ($data as $entity => $messages) {
+            if (!is_array($messages)) {
+                continue;
+            }
+
+            foreach ($messages as $msg) {
+                if (is_array($msg)) {
+                    $this->addData(
+                        $msg[self::MESSAGE] ?? '',
+                        $entity,
+                        $msg[self::STATUS] ?? StatusInterface::SUCCESS,
+                        $msg[self::METADATA] ?? []
+                    );
+                } else {
+                    $this->addData($msg, $entity);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function mergeData(array $data, mixed $key = null): static
+    {
+        if (null !== $key) {
+            // Merge only specific key
+            if (isset($data[$key]) && is_array($data[$key])) {
+                foreach ($data[$key] as $msg) {
+                    if (is_array($msg)) {
+                        $this->addData(
+                            $msg[self::MESSAGE] ?? '',
+                            $key,
+                            $msg[self::STATUS] ?? StatusInterface::SUCCESS,
+                            $msg[self::METADATA] ?? []
+                        );
+                    }
+                }
+            }
+        } else {
+            // Merge all data
+            foreach ($data as $entity => $messages) {
+                if (!is_array($messages)) {
+                    continue;
+                }
+
+                foreach ($messages as $msg) {
+                    if (is_array($msg)) {
+                        $this->addData(
+                            $msg[self::MESSAGE] ?? '',
+                            $entity,
+                            $msg[self::STATUS] ?? StatusInterface::SUCCESS,
+                            $msg[self::METADATA] ?? []
+                        );
+                    }
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getEntityIds(): array
+    {
+        return array_keys($this->messageCollector->getMessages());
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resetData(mixed $key = null): static
+    {
+        if (null === $key) {
+            $this->messageCollector->reset();
+        } else {
+            $this->messageCollector->clearMessages($key);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Get the underlying message collector
+     *
+     * @return MessageCollectorInterface
+     */
+    public function getMessageCollector(): MessageCollectorInterface
+    {
+        return $this->messageCollector;
+    }
+}

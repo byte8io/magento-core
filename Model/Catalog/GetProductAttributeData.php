@@ -1,0 +1,331 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+declare(strict_types=1);
+
+namespace Byte8\Core\Model\Catalog;
+
+use Magento\Catalog\Api\Data\ProductAttributeInterface;
+use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\Store;
+use Byte8\Core\Model\Eav\AttributeManagementInterface;
+use Byte8\Core\Model\Eav\AttributeManagementInterfaceFactory;
+use Byte8\Core\Model\Eav\GetAttributeBackendTableInterface;
+use Byte8\Core\Model\Trait\ConnectionTrait;
+use Byte8\Core\Model\Utils\GetEntityMetadataInterface;
+
+/**
+ * @inheritDoc
+ */
+class GetProductAttributeData implements GetProductAttributeDataInterface
+{
+    use ConnectionTrait;
+
+    /**
+     * @var AttributeManagementInterface|null
+     */
+    private ?AttributeManagementInterface $attributeManagement = null;
+
+    /**
+     * @var array
+     */
+    private array $attributeSetIdInMemory = [];
+
+    /**
+     * @var array
+     */
+    private array $dataInMemory = [];
+
+    /**
+     * @var int|null
+     */
+    private ?int $entityIdInMemory = null;
+
+    /**
+     * @var int|null
+     */
+    private ?int $storeIdInMemory = null;
+
+    /**
+     * @var array
+     */
+    private array $tableDescriptionInMemory = [];
+
+    /**
+     * @param AttributeManagementInterfaceFactory $attributeManagementFactory
+     * @param GetAttributeBackendTableInterface $getAttributeBackendTable
+     * @param GetEntityMetadataInterface $getEntityMetadata
+     * @param ResourceConnection $resourceConnection
+     */
+    public function __construct(
+        private readonly AttributeManagementInterfaceFactory $attributeManagementFactory,
+        private readonly GetAttributeBackendTableInterface $getAttributeBackendTable,
+        private readonly GetEntityMetadataInterface $getEntityMetadata,
+        private readonly ResourceConnection $resourceConnection
+    ) {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function execute(
+        int $entityId,
+        int $storeId = Store::DEFAULT_STORE_ID,
+        ?int $attributeSetId = null,
+        bool $shouldIncludeStaticAttributes = false
+    ): static
+    {
+        $this->entityIdInMemory = $entityId;
+        $this->storeIdInMemory = $storeId;
+
+        if (!$attributeSetId) {
+            $attributeSetId = $this->getAttributeSetId();
+        }
+
+        if (!isset($this->dataInMemory[$this->entityIdInMemory][$this->storeIdInMemory])) {
+            $this->dataInMemory[$this->entityIdInMemory][$this->storeIdInMemory] = $this->retrieveData(
+                $attributeSetId,
+                $shouldIncludeStaticAttributes
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getLoadedData(): array
+    {
+        return $this->dataInMemory[$this->entityIdInMemory][$this->storeIdInMemory] ?? [];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function filterByAttributeCode(array|string $attributeCode): array|string|null
+    {
+        if (is_array($attributeCode)) {
+            return array_intersect_key(
+                $this->dataInMemory[$this->entityIdInMemory][$this->storeIdInMemory] ?? [],
+                array_flip($attributeCode)
+            );
+        }
+
+        return isset($this->dataInMemory[$this->entityIdInMemory][$this->storeIdInMemory][$attributeCode])
+            ? (string) $this->dataInMemory[$this->entityIdInMemory][$this->storeIdInMemory][$attributeCode]
+            : null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function filterByAttributeId(array|int $attributeId): array
+    {
+        $attributeIds = is_array($attributeId) ? $attributeId : [$attributeId];
+        $attributeCodes = [];
+
+        foreach (array_map('intval', $attributeIds) as $id) {
+            if ($attributeCode = $this->getAttributeManagement()->getAttributeToIdToCodeMapping($id)) {
+                $attributeCodes[$id] = $attributeCode;
+            }
+        }
+
+        return $this->filterByAttributeCode($attributeCodes);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function resetData(?int $entityId = null, ?int $storeId = null): void
+    {
+        if (null === $entityId) {
+            $this->dataInMemory = [];
+            $this->entityIdInMemory = null;
+            $this->storeIdInMemory = null;
+            return;
+        }
+
+        if (null !== $storeId) {
+            unset($this->dataInMemory[$entityId][$storeId]);
+        } else {
+            unset($this->dataInMemory[$entityId]);
+        }
+    }
+
+    /**
+     * @param int $attributeSetId
+     * @param bool $shouldIncludeStaticAttributes
+     * @return array
+     * @throws LocalizedException
+     */
+    private function retrieveData(
+        int $attributeSetId,
+        bool $shouldIncludeStaticAttributes
+    ): array {
+        $entityLinkField = $this->getEntityMetadata->getLinkField();
+        $resultData = [];
+        $staticEntityAttributes = [];
+        $dynamicEntityAttributes = [];
+        $staticTable = null;
+
+        foreach ($this->getAttributeManagement()->getAttributeIdsByAttributeSet($attributeSetId) as $attributeId) {
+            $attribute = $this->getAttributeManagement()->getAttributeData($attributeId);
+
+            if (!$attributeCode = $attribute['attribute_code'] ?? null) {
+                continue;
+            }
+
+            $attributeTable = $attribute['backend_table'] ?? $this->getAttributeBackendTable->execute(
+                $attributeId,
+                ProductAttributeInterface::ENTITY_TYPE_CODE
+            );
+
+            if ($this->getAttributeManagement()->isAttributeStatic($attributeId)) {
+                if ($shouldIncludeStaticAttributes
+                    && in_array($attributeCode, $this->getTableDescription($attributeTable))
+                ) {
+                    $staticEntityAttributes[] = $attributeCode;
+                    $staticTable = $attributeTable;
+                }
+            } else {
+                $dynamicEntityAttributes[$attributeTable][$attributeId] = $attributeCode;
+            }
+        }
+
+        if ($staticEntityAttributes && $staticTable) {
+            $select = $this->getConnection()->select()->from($staticTable, $staticEntityAttributes);
+
+            if ($staticTable !== 'catalog_product_entity') {
+                $select->join(
+                    ['cpe' => $this->getConnection()->getTableName('catalog_product_entity')],
+                    "cpe.$entityLinkField = $staticTable.$entityLinkField"
+                )->where('e.entity_id = ?', $this->entityIdInMemory);
+            } else {
+                $select->where("$staticTable.$entityLinkField = ?", $this->entityIdInMemory);
+            }
+
+            $resultData = $this->getConnection()->fetchRow($select);
+        }
+
+        foreach ($dynamicEntityAttributes as $table => $item) {
+            $attributeIds = array_keys($item);
+
+            $defaultJoinCondition = [
+                $this->getConnection()->quoteInto(
+                    'default_value.attribute_id IN (?)',
+                    $attributeIds,
+                    \Zend_Db::INT_TYPE
+                ),
+                "default_value.$entityLinkField = e.$entityLinkField",
+                'default_value.store_id = 0',
+            ];
+
+            $select = $this->getConnection()->select()
+                ->from(['e' => $this->getConnection()->getTableName('catalog_product_entity')], [])
+                ->joinLeft(
+                    ['default_value' => $table],
+                    implode(' AND ', $defaultJoinCondition),
+                    null
+                )
+                // ->where("e.entity_id = :entity_id")
+                ->where("e.$entityLinkField = :$entityLinkField");
+
+            $bind = [$entityLinkField => $this->entityIdInMemory];
+
+            if ($this->storeIdInMemory !== Store::DEFAULT_STORE_ID) {
+                $valueFragmentExpression = $this->getConnection()->getCheckSql(
+                    'store_value.value IS NULL',
+                    'default_value.value',
+                    'store_value.value'
+                );
+
+                $attributeIdFragmentExpression = $this->getConnection()->getCheckSql(
+                    'store_value.attribute_id IS NULL',
+                    'default_value.attribute_id',
+                    'store_value.attribute_id'
+                );
+
+                $quoteCondition = [
+                    $this->getConnection()->quoteInto(
+                        'store_value.attribute_id IN (?)',
+                        $attributeIds,
+                        \Zend_Db::INT_TYPE
+                    ),
+                    "store_value.$entityLinkField = e.$entityLinkField",
+                    'store_value.store_id = :store_id',
+                ];
+
+                $select->joinLeft(
+                    ['store_value' => $table],
+                    implode(' AND ', $quoteCondition),
+                    [
+                        'attribute_id' => $attributeIdFragmentExpression,
+                        'attr_value' => $valueFragmentExpression
+                    ]
+                );
+
+                $bind['store_id'] = $this->storeIdInMemory;
+            } else {
+                $select->columns(
+                    ['attribute_id' => 'attribute_id', 'attr_value' => 'value'],
+                    'default_value'
+                );
+            }
+
+            foreach ($this->getConnection()->fetchPairs($select, $bind) as $attributeId => $value) {
+                if ($attributeCode = $item[$attributeId] ?? null) {
+                    $resultData[$attributeCode] = $value;
+                }
+            }
+        }
+
+        return $resultData;
+    }
+
+    /**
+     * @return int
+     * @throws \Exception
+     */
+    private function getAttributeSetId(): int
+    {
+        if (!isset($this->attributeSetIdInMemory[$this->entityIdInMemory])) {
+            $entityLinkField = $this->getEntityMetadata->getLinkField();
+            $select = $this->getConnection()->select()
+                ->from($this->getConnection()->getTableName('catalog_product_entity'), 'attribute_set_id')
+                ->where("$entityLinkField = ?", $this->entityIdInMemory);
+
+            $this->attributeSetIdInMemory[$this->entityIdInMemory] = (int) $this->getConnection()->fetchOne($select);
+        }
+
+        return $this->attributeSetIdInMemory[$this->entityIdInMemory];
+    }
+
+    /**
+     * @param string $tableName
+     * @return array
+     */
+    private function getTableDescription(string $tableName): array
+    {
+        if (!isset($this->tableDescriptionInMemory[$tableName])) {
+            $this->tableDescriptionInMemory[$tableName] = array_keys($this->getConnection()->describeTable($tableName));
+        }
+
+        return $this->tableDescriptionInMemory[$tableName];
+    }
+
+    /**
+     * @return AttributeManagementInterface
+     */
+    private function getAttributeManagement(): AttributeManagementInterface
+    {
+        if (null === $this->attributeManagement) {
+            $this->attributeManagement = $this->attributeManagementFactory->create();
+        }
+        return $this->attributeManagement;
+    }
+}
