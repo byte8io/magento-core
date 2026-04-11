@@ -9,7 +9,7 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
-                <resource id="Byte8_Core::byte8_core" title="Byte8 Extensions" translate="title" sortOrder="100">
+                <resource id="Byte8_Core::byte8" title="Byte8 Extensions" translate="title" sortOrder="100">
                     <resource id="Byte8_Core::configuration" title="Configuration" translate="title" sortOrder="10">
                         <resource id="Byte8_Core::core_configuration" title="Core Configuration" translate="title" sortOrder="10"/>
                     </resource>

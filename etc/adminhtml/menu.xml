@@ -7,19 +7,19 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-        <add id="Byte8_Core::byte8_core"
-             title="Soft Commerce"
+        <add id="Byte8_Core::byte8"
+             title="Byte8"
              translate="title"
              module="Byte8_Core"
              sortOrder="55"
              dependsOnModule="Byte8_Core"
-             resource="Byte8_Core::byte8_core"/>
+             resource="Byte8_Core::byte8"/>
         <add id="Byte8_Core::config"
              title="Configuration"
              translate="title"
              module="Byte8_Core"
              sortOrder="10"
-             parent="Byte8_Core::byte8_core"
+             parent="Byte8_Core::byte8"
              resource="Byte8_Core::configuration"/>
         <add id="Byte8_Core::config_byte8_core"
              title="Core Settings"
