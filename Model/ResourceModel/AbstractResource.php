@@ -8,12 +8,12 @@ declare(strict_types=1);
 
 namespace Byte8\Core\Model\ResourceModel;
 
+use function array_unshift;
 use Magento\Framework\DB\Select;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\Model\ResourceModel\Db\Context;
 use Magento\Framework\Serialize\SerializerInterface;
-use function array_unshift;
 
 /**
  * Class AbstractResource
@@ -22,19 +22,16 @@ use function array_unshift;
 abstract class AbstractResource extends AbstractDb
 {
     /**
-     * @var array
-     */
-    private array $metadata = [];
-
-    /**
      * @param SerializerInterface $serializer
      * @param Context $context
-     * @param null $connectionName
+     * @param array $metadata
+     * @param string|null $connectionName
      */
     public function __construct(
         SerializerInterface $serializer,
         Context $context,
-        $connectionName = null
+        private array $metadata = [],
+        ?string $connectionName = null
     ) {
         $this->serializer = $serializer;
         parent::__construct($context, $connectionName);
@@ -51,7 +48,7 @@ abstract class AbstractResource extends AbstractDb
         $connection = $this->getConnection();
         $select = $connection->select()
             ->from($this->getMainTable(), $cols);
-            $select->where($this->getIdFieldName() . ' = ?', $entityId);
+        $select->where($this->getIdFieldName() . ' = ?', $entityId);
 
         return $connection->fetchRow($select);
     }

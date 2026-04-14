@@ -1,16 +1,13 @@
 {
     "name": "byte8/module-core",
-    "description": "Byte8 -- Magento: Core Module.",
+    "description": "Core utility module providing shared services and components for Byte8 Magento 2 modules.",
     "require": {
-        "php": "~8.1.0||~8.2.0||~8.3.0||~8.4.0",
+        "php": "~8.1.0||~8.2.0||~8.3.0||~8.4.0||~8.5.0",
         "magento/framework": "^102||^103",
         "magento/module-ui": "^101"
     },
     "type": "magento2-module",
-    "license": [
-        "OSL-3.0",
-        "AFL-3.0"
-    ],
+    "license": "MIT",
     "autoload": {
         "files": [
             "registration.php"
@@ -19,5 +16,5 @@
             "Byte8\\Core\\": ""
         }
     },
-    "version": "1.0.1"
+    "version": "1.0.2"
 }
