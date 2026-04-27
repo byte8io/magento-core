@@ -14,13 +14,7 @@
                         <resource id="Byte8_Core::core_configuration" title="Core Configuration" translate="title" sortOrder="10"/>
                     </resource>
                 </resource>
-                <resource id="Magento_Backend::stores">
-                    <resource id="Magento_Backend::stores_settings">
-                        <resource id="Magento_Config::config">
-                            <resource id="Byte8_Core::system_config" title="Byte8 Core Section" translate="title" sortOrder="999"/>
-                        </resource>
-                    </resource>
-                </resource>
+                <resource id="Byte8_Core::system_config" title="Byte8 Core Section" translate="title" sortOrder="999"/>
             </resource>
         </resources>
     </acl>
