@@ -30,6 +30,9 @@
     <!-- global framework interfaces :: message storage -->
     <preference for="Byte8\Core\Framework\MessageCollectorInterface" type="Byte8\Core\Framework\MessageCollector"/>
     <preference for="Byte8\Core\Framework\MessageStorageInterface" type="Byte8\Core\Framework\MessageStorage"/>
+    <preference for="Byte8\Core\Framework\MessageStorage\OutputConsoleInterface" type="Byte8\Core\Framework\MessageStorage\OutputConsole"/>
+    <preference for="Byte8\Core\Framework\MessageStorage\OutputConsoleProgressInterface" type="Byte8\Core\Framework\MessageStorage\OutputConsoleProgress"/>
+    <preference for="Byte8\Core\Framework\MessageStorage\StatusPredictionInterface" type="Byte8\Core\Framework\MessageStorage\StatusPrediction"/>
 
     <!-- global config ::: interface | repository | management -->
     <preference for="Byte8\Core\Model\Config\DateTimeLocaleInterface" type="Byte8\Core\Model\Config\DateTimeLocale"/>

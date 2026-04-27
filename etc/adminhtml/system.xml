@@ -7,13 +7,13 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <tab id="byte8_tab" translate="label" sortOrder="999" class="byte8-tab">
+        <tab id="byte8" translate="label" sortOrder="999" class="byte8-tab">
             <label>Byte8</label>
         </tab>
         <section id="byte8_core" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
             <label>Core Configuration</label>
-            <tab>byte8_tab</tab>
+            <tab>byte8</tab>
             <resource>Byte8_Core::system_config</resource>
             <group id="dev" translate="label" type="text" showInDefault="1">
                 <label>Developer Settings</label>
