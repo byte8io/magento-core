@@ -7,7 +7,7 @@
         "magento/module-ui": "^101"
     },
     "type": "magento2-module",
-    "license": "MIT",
+    "license": "proprietary",
     "autoload": {
         "files": [
             "registration.php"
