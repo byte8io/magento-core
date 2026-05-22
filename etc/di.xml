@@ -115,4 +115,43 @@
             </argument>
         </arguments>
     </type>
+
+    <!--
+        Activation gate. Shared base for every Byte8 free module's
+        license-key flow. Each consumer declares an empty subclass at
+        Byte8\<Module>\Model\Activation\Activation extends
+        Byte8\Core\Model\Activation\Activation and binds product_id +
+        configPathPrefix on the subclass via its own di.xml — see
+        module-vat-validator / module-pingbell / module-stock-radar for
+        worked examples.
+
+        Logger writes to var/log/activation.log so a merchant debugging
+        an unactivated module doesn't have to grep through system.log.
+    -->
+    <virtualType name="Byte8\Core\Activation\Logger\Handler" type="Magento\Framework\Logger\Handler\Base">
+        <arguments>
+            <argument name="fileName" xsi:type="string">/var/log/activation.log</argument>
+        </arguments>
+    </virtualType>
+
+    <virtualType name="Byte8\Core\Activation\Logger\Logger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="name" xsi:type="string">byte8_activation</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Byte8\Core\Activation\Logger\Handler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Byte8\Core\Model\Activation\Client">
+        <arguments>
+            <argument name="logger" xsi:type="object">Byte8\Core\Activation\Logger\Logger</argument>
+        </arguments>
+    </type>
+
+    <type name="Byte8\Core\Model\Activation\Activation">
+        <arguments>
+            <argument name="logger" xsi:type="object">Byte8\Core\Activation\Logger\Logger</argument>
+        </arguments>
+    </type>
 </config>
