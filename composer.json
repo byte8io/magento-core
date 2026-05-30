@@ -1,13 +1,31 @@
 {
     "name": "byte8/module-core",
-    "description": "Core utility module providing shared services and components for Byte8 Magento 2 modules.",
+    "description": "Core utility module providing shared services and components for Byte8 Magento 2 modules — admin menu chassis, dedicated logger handlers, framework utilities, and the shared product activation gate consumed by the free byte8/module-* extensions.",
+    "type": "magento2-module",
+    "license": "MIT",
+    "keywords": [
+        "magento",
+        "magento2",
+        "magento-2",
+        "byte8",
+        "activation",
+        "license-key"
+    ],
+    "homepage": "https://byte8.io",
+    "support": {
+        "email": "helo@byte8.io"
+    },
+    "authors": [
+        {
+            "name": "Byte8 Ltd",
+            "email": "helo@byte8.io"
+        }
+    ],
     "require": {
         "php": "~8.1.0||~8.2.0||~8.3.0||~8.4.0||~8.5.0",
         "magento/framework": "^102||^103",
         "magento/module-ui": "^101"
     },
-    "type": "magento2-module",
-    "license": "MIT",
     "autoload": {
         "files": [
             "registration.php"
@@ -16,5 +34,5 @@
             "Byte8\\Core\\": ""
         }
     },
-    "version": "1.0.2"
+    "version": "1.1.0"
 }
