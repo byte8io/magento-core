@@ -27,9 +27,8 @@
     <!-- global framework interfaces :: DB -->
     <preference for="Byte8\Core\Framework\DB\QueryResultDataTypeConverterInterface" type="Byte8\Core\Framework\DB\QueryResultDataTypeConverter"/>
 
-    <!-- global framework interfaces :: message storage -->
+    <!-- message collector -->
     <preference for="Byte8\Core\Framework\MessageCollectorInterface" type="Byte8\Core\Framework\MessageCollector"/>
-    <preference for="Byte8\Core\Framework\MessageStorageInterface" type="Byte8\Core\Framework\MessageStorage"/>
 
     <!-- global config ::: interface | repository | management -->
     <preference for="Byte8\Core\Model\Config\DateTimeLocaleInterface" type="Byte8\Core\Model\Config\DateTimeLocale"/>
@@ -38,21 +37,7 @@
     <!-- email notification service -->
     <preference for="Byte8\Core\Api\EmailNotificationInterface" type="Byte8\Core\Model\EmailNotification"/>
 
-    <!-- Catalog modules ::: interface | repository -->
-    <preference for="Byte8\Core\Model\Catalog\FileImageManagementInterface" type="Byte8\Core\Model\Catalog\FileImageManagement"/>
-    <preference for="Byte8\Core\Model\Catalog\GetCatalogCategoryDataInterface" type="Byte8\Core\Model\Catalog\GetCatalogCategoryData"/>
-    <preference for="Byte8\Core\Model\Catalog\GetConfigurableAttributeOptionsInterface" type="Byte8\Core\Model\Catalog\GetConfigurableAttributeOptions"/>
-    <preference for="Byte8\Core\Model\Catalog\GetProductAttributeDataInterface" type="Byte8\Core\Model\Catalog\GetProductAttributeData"/>
-    <preference for="Byte8\Core\Model\Catalog\IsCatalogProductSuperLinkInterface" type="Byte8\Core\Model\Catalog\IsCatalogProductSuperLink"/>
-    <preference for="Byte8\Core\Model\Catalog\MediaManagementInterface" type="Byte8\Core\Model\Catalog\MediaManagement"/>
-    <preference for="Byte8\Core\Model\Catalog\MediaChecksumComputeServiceInterface" type="Byte8\Core\Model\Catalog\MediaChecksumComputeService"/>
-    <preference for="Byte8\Core\Model\Catalog\SkuStorageInterface" type="Byte8\Core\Model\Catalog\SkuStorage"/>
-
-    <!-- Customer modules :: interface | repository -->
-    <preference for="Byte8\Core\Model\Customer\GetCustomerRawDataInterface" type="Byte8\Core\Model\Customer\GetCustomerRawData"/>
-
     <!-- Eav modules ::: interface | repository -->
-    <preference for="Byte8\Core\Model\Eav\AttributeManagementInterface" type="Byte8\Core\Model\Eav\AttributeManagement"/>
     <preference for="Byte8\Core\Model\Eav\GetAttributeBackendTableInterface" type="Byte8\Core\Model\Eav\GetAttributeBackendTable"/>
     <preference for="Byte8\Core\Model\Eav\GetAttributeEntityTypeDataInterface" type="Byte8\Core\Model\Eav\GetAttributeEntityTypeData"/>
     <preference for="Byte8\Core\Model\Eav\GetAttributeEntityTypeIdInterface" type="Byte8\Core\Model\Eav\GetAttributeEntityTypeId"/>

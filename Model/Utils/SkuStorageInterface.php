@@ -12,7 +12,7 @@ namespace Byte8\Core\Model\Utils;
  * Interface SkuStorageInterface
  * used to provide catalog product entity data.
  * @deprecated in favour
- * @see \Byte8\Core\Model\Catalog\SkuStorageInterface
+ * @see \Byte8\PlentyCore\Model\Catalog\SkuStorageInterface
  */
 interface SkuStorageInterface
 {

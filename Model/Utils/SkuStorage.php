@@ -21,7 +21,7 @@ use function trim;
 /**
  * @inheritDoc
  * @deprecated in favour
- * @see \Byte8\Core\Model\Catalog\SkuStorageInterface
+ * @see \Byte8\PlentyCore\Model\Catalog\SkuStorageInterface
  */
 class SkuStorage implements SkuStorageInterface
 {
