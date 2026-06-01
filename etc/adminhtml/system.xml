@@ -15,7 +15,13 @@
             <label>Core Configuration</label>
             <tab>byte8</tab>
             <resource>Byte8_Core::system_config</resource>
-            <group id="dev" translate="label" type="text" showInDefault="1">
+            <group id="info" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>About</label>
+                <field id="intro" translate="label" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <frontend_model>Byte8\Core\Block\Adminhtml\System\Config\Form\Field\IntroSection</frontend_model>
+                </field>
+            </group>
+            <group id="dev" translate="label" type="text" sortOrder="10" showInDefault="1">
                 <label>Developer Settings</label>
                 <field id="is_active_log_rotation" translate="label comment" type="select" sortOrder="1" showInDefault="1">
                     <label>Enable log rotation</label>
@@ -55,7 +61,7 @@
                     </depends>
                 </field>
             </group>
-            <group id="ui" translate="label" type="text" showInDefault="1">
+            <group id="ui" translate="label" type="text" sortOrder="20" showInDefault="1">
                 <label>UI Settings</label>
                 <field id="is_active_fontawesome" translate="label comment" type="select" sortOrder="1" showInDefault="1">
                     <label>Enable Font Awesome Icons</label>
@@ -70,9 +76,11 @@
                     </depends>
                 </field>
             </group>
-            <group id="vendor_module_list" translate="label" type="text" showInDefault="1">
-                <label>List of installed modules</label>
-                <frontend_model>Byte8\Core\Block\Adminhtml\System\Config\Form\Field\ModuleList</frontend_model>
+            <group id="vendor_module_list" translate="label" type="text" sortOrder="30" showInDefault="1">
+                <label>Installed Modules</label>
+                <field id="list" translate="label" sortOrder="1" showInDefault="1">
+                    <frontend_model>Byte8\Core\Block\Adminhtml\System\Config\Form\Field\ModuleList</frontend_model>
+                </field>
             </group>
         </section>
     </system>

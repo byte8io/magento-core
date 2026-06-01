@@ -1,0 +1,60 @@
+<?php
+/**
+ * Copyright © Byte8 Ltd. All rights reserved.
+ * See LICENSE.txt for license details.
+ *
+ * @var \Byte8\Core\Block\Adminhtml\System\Config\Form\Field\IntroSection $block
+ */
+?>
+<div class="byte8-core-intro">
+    <h3><?= $block->escapeHtml(__('Byte8 — Magento Extensions')) ?></h3>
+    <p>
+        <?= $block->escapeHtml(__(
+            'Byte8 builds enterprise-grade extensions for Magento 2 and Adobe Commerce. '
+            . 'This module is the shared foundation used by all Byte8 extensions — '
+            . 'logging, configuration helpers, UI components, and developer utilities.'
+        )) ?>
+    </p>
+    <ul class="byte8-core-intro__links">
+        <li>
+            <a href="https://docs.byte8.io/" target="_blank" rel="noopener noreferrer">
+                <?= $block->escapeHtml(__('Documentation')) ?>
+            </a>
+            &mdash;
+            <?= $block->escapeHtml(__('guides, configuration reference, and troubleshooting for all Byte8 modules')) ?>
+        </li>
+        <li>
+            <a href="https://byte8.io/support" target="_blank" rel="noopener noreferrer">
+                <?= $block->escapeHtml(__('Support')) ?>
+            </a>
+            &mdash;
+            <?= $block->escapeHtml(__('open a ticket or contact our team')) ?>
+        </li>
+        <li>
+            <a href="https://byte8.io" target="_blank" rel="noopener noreferrer">
+                <?= $block->escapeHtml(__('Homepage')) ?>
+            </a>
+            &mdash;
+            <?= $block->escapeHtml(__('about Byte8')) ?>
+        </li>
+    </ul>
+</div>
+<style>
+    .byte8-core-intro {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        background: #f8f8f8;
+        border-left: 4px solid #007bdb;
+    }
+    .byte8-core-intro h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+    }
+    .byte8-core-intro p {
+        margin: 0 0 0.75rem 0;
+    }
+    .byte8-core-intro__links {
+        margin: 0;
+        padding-left: 1.25rem;
+    }
+</style>
