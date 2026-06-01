@@ -8,12 +8,12 @@ declare(strict_types=1);
 
 namespace Byte8\Core\Ui\Component\Listing\Columns;
 
+use Byte8\Core\Framework\DataStorage\OutputArrayPrintReadableInterface;
+use Byte8\Core\Framework\DataStorage\StatusPredictionInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
-use Byte8\Core\Framework\DataStorage\OutputArrayPrintReadableInterface;
-use Byte8\Core\Framework\DataStorage\StatusPredictionInterface;
 
 /**
  * @inheritDoc
