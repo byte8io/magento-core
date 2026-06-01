@@ -46,62 +46,64 @@ class ConsoleRenderer implements RendererInterface
         $statistics = $collector->getStatistics();
         $messages = $collector->getMessages();
 
-        // Use operation_type from options or default to 'Export'
         $operationType = $options['operation_type'] ?? 'Export';
-        $summaryTitle = ucfirst($operationType) . ' Summary:';
-
-        // Get the ID field to use for entity identification (e.g., 'plenty_id', 'magento_id', 'entity_id')
         $idField = $options['id_field'] ?? 'entity_id';
 
         $this->output->writeln('');
-        $this->output->writeln(sprintf('<info>%s</info>', $summaryTitle));
+        $this->output->writeln(sprintf('<info>%s Summary:</info>', ucfirst($operationType)));
 
         $totalEntities = 0;
         $totalSuccess = 0;
         $totalErrors = 0;
+        $totalProductsWritten = 0;
+
+        // Cross-cutting "system" bucket (entity key 0) is rendered separately as a header section;
+        // it has no business being counted as a processed entity.
+        $systemMessages = $messages[0] ?? ($messages['0'] ?? []);
+        if (!empty($systemMessages)) {
+            $this->output->writeln('');
+            $this->output->writeln('  <comment>System:</comment>');
+            foreach ($this->buildSystemSummaryLines($systemMessages) as $line) {
+                $this->output->writeln('    <info>✓</info> ' . $line);
+            }
+        }
 
         foreach ($statistics as $entity => $stats) {
-            $entityMessages = $messages[$entity] ?? [];
-
-            // Count actual records from metadata, not message count
-            $recordsCollected = 0;
-            foreach ($entityMessages as $msg) {
-                if (isset($msg['metadata']['records_collected'])) {
-                    $recordsCollected += (int) $msg['metadata']['records_collected'];
-                }
+            // Skip the system bucket we already rendered
+            if ((string) $entity === '0') {
+                continue;
             }
 
-            // Each entity represents one processed item
+            $entityMessages = $messages[$entity] ?? [];
             $totalEntities++;
-
-            // Count entities with successful operations
             if ($stats['success'] > 0) {
                 $totalSuccess++;
             }
-
-            // Sum up all errors across entities
             $totalErrors += $stats['error'];
 
-            // Build entity summary from metadata using the specified ID field
-            $summary = $this->buildEntitySummary($entity, $entityMessages, $idField);
-
-            // Always show the entity, even if metadata is incomplete
             $statusIcon = $stats['error'] > 0 ? '<error>✗</error>' : '<info>✓</info>';
-            if ($summary) {
-                $this->output->writeln(sprintf('  %s %s: %s', $statusIcon, $entity, $summary));
-            } else {
-                // Show entity ID even without metadata
-                $this->output->writeln(sprintf('  %s %s: (no details available)', $statusIcon, $entity));
+            $headline = $this->buildEntitySummary($entity, $entityMessages, $idField);
+            $rollupLines = $this->buildEntityRollup($entityMessages, $totalProductsWritten);
+
+            $this->output->writeln('');
+            $this->output->writeln(sprintf(
+                '  %s %s: %s',
+                $statusIcon,
+                $entity,
+                $headline ?: '(no details available)'
+            ));
+            foreach ($rollupLines as $rollup) {
+                $this->output->writeln('           <fg=gray>→</> ' . $rollup);
             }
         }
 
         $this->output->writeln('');
-        $this->output->writeln(sprintf(
-            '<info>Total: %d entities processed (%d successful operations, %d errors)</info>',
-            $totalEntities,
-            $totalSuccess,
-            $totalErrors
-        ));
+        $totalLine = sprintf('Total: %d entities processed', $totalEntities);
+        if ($totalProductsWritten > 0) {
+            $totalLine .= sprintf(' · %d product(s) written', $totalProductsWritten);
+        }
+        $totalLine .= sprintf(' · %d successful · %d error(s)', $totalSuccess, $totalErrors);
+        $this->output->writeln('<info>' . $totalLine . '</info>');
     }
 
     /**
@@ -148,63 +150,260 @@ class ConsoleRenderer implements RendererInterface
     }
 
     /**
-     * Build summary string from entity messages
+     * Build the single-line headline shown after "✓ <entity_id>:".
      *
-     * @param int|string $entity The parent entity identifier
-     * @param array $entityMessages Array of messages for this entity
-     * @param string $idField The metadata field to use for IDs (e.g., 'plenty_id', 'magento_id', 'entity_id')
-     * @return string The formatted summary string
+     * Priority:
+     *   1. Anchor message with metadata.product_type → "<name> — <Type> (new|updated), N variation(s)"
+     *   2. Legacy metadata.entity_type + idField → "<Type> <id>" (preserves non-product CLI summaries)
+     *   3. Count of "Created/Updated new product:" messages → "N created/updated"
+     *   4. First message text (last-resort fallback)
      */
     private function buildEntitySummary(int|string $entity, array $entityMessages, string $idField = 'entity_id'): string
     {
-        $parts = [];
-
+        // 1. Anchor on metadata.product_type — emitted by the final "X processed successfully" message
         foreach ($entityMessages as $msg) {
-            if (!isset($msg['metadata']) || !is_array($msg['metadata'])) {
+            $md = $msg['metadata'] ?? [];
+            if (empty($md['product_type'])) {
                 continue;
             }
 
-            $metadata = $msg['metadata'];
+            $type = ucfirst((string) $md['product_type']);
+            $state = !empty($md['is_new']) ? 'new' : 'updated';
+            $name = $this->findEntityName($entityMessages);
 
-            // Extract entity information from metadata
-            if (isset($metadata['entity_type']) && isset($metadata[$idField])) {
-                $type = ucwords(str_replace('_', ' ', $metadata['entity_type']));
-                $id = $metadata[$idField];
-                if (is_array($id)) {
-                    $id = implode(', ', $id);
+            $line = ($name !== null ? $name . ' — ' : '') . sprintf('%s (%s)', $type, $state);
+            if (!empty($md['variation_count'])) {
+                $line .= sprintf(', %d variation(s)', (int) $md['variation_count']);
+            }
+            return $line;
+        }
+
+        // 2. entity_type-anchored path — used by stock/attribute/order/customer CLIs.
+        // Aggregate metadata across all messages in the bucket to build a rich headline.
+        $entityType = null;
+        $displayName = null;
+        $action = null;
+        $skipReason = null;
+        $idValue = null;
+        foreach ($entityMessages as $msg) {
+            $md = $msg['metadata'] ?? [];
+            if ($entityType === null && !empty($md['entity_type'])) {
+                $entityType = (string) $md['entity_type'];
+            }
+            if ($displayName === null) {
+                foreach (['sku', 'attribute_code', 'name'] as $nameField) {
+                    if (!empty($md[$nameField])) {
+                        $displayName = (string) $md[$nameField];
+                        break;
+                    }
                 }
-                $parts[$type] = [
-                    'type' => $type,
-                    'id' => $id,
-                    'raw_type' => $metadata['entity_type']
-                ];
+            }
+            // action — later messages win (terminal action overrides early intermediates)
+            if (!empty($md['action'])) {
+                $action = (string) $md['action'];
+            }
+            if ($skipReason === null && !empty($md['skip_reason'])) {
+                $skipReason = (string) $md['skip_reason'];
+            }
+            if ($idValue === null && !empty($md[$idField])) {
+                $idValue = is_array($md[$idField]) ? implode(', ', $md[$idField]) : (string) $md[$idField];
             }
         }
 
-        // If no metadata summary was built, use the message text as fallback
-        if (empty($parts) && !empty($entityMessages)) {
-            $firstMessage = reset($entityMessages);
-            if (isset($firstMessage['message'])) {
-                // Return the message text (can be multi-line)
-                return (string) $firstMessage['message'];
+        if ($entityType !== null) {
+            $type = ucwords(str_replace('_', ' ', $entityType));
+            $line = ($displayName !== null ? $displayName . ' — ' : '') . $type;
+            if ($action !== null) {
+                $stateStr = str_replace('_', ' ', $action);
+                if ($action === 'skipped' && $skipReason !== null) {
+                    $stateStr .= ': ' . str_replace('_', ' ', $skipReason);
+                }
+                $line .= ' (' . $stateStr . ')';
+            } elseif ($displayName === null && $idValue !== null) {
+                $line .= ' ' . $idValue;
+            }
+            return $line;
+        }
+
+        // 3. Count create/update messages
+        $created = 0;
+        $updated = 0;
+        foreach ($entityMessages as $msg) {
+            if (($msg['status'] ?? '') !== 'success') {
+                continue;
+            }
+            $m = (string) ($msg['message'] ?? '');
+            if (str_starts_with($m, 'Created new product:')) {
+                $created++;
+            } elseif (str_starts_with($m, 'Updated product:')) {
+                $updated++;
+            }
+        }
+        if ($created || $updated) {
+            $countParts = [];
+            if ($created) {
+                $countParts[] = "$created created";
+            }
+            if ($updated) {
+                $countParts[] = "$updated updated";
+            }
+            return implode(', ', $countParts) . ' product(s)';
+        }
+
+        // 4. Last resort
+        return isset($entityMessages[0]['message']) ? (string) $entityMessages[0]['message'] : '';
+    }
+
+    /**
+     * Render the cross-cutting "System:" bucket (entity key 0).
+     * Groups all `metadata.indexer` messages into one line; other success messages pass through.
+     * Notices are dropped (visible only in --verbose via renderDetails).
+     */
+    private function buildSystemSummaryLines(array $messages): array
+    {
+        $lines = [];
+        $indexers = [];
+
+        foreach ($messages as $msg) {
+            if (($msg['status'] ?? '') === 'notice') {
+                continue;
+            }
+            $md = $msg['metadata'] ?? [];
+
+            if (!empty($md['indexer'])) {
+                $indexers[$this->shortenIndexerName((string) $md['indexer'])] = (int) ($md['product_count'] ?? 0);
+                continue;
+            }
+
+            $text = (string) ($msg['message'] ?? '');
+            if ($text !== '') {
+                $lines[] = $text;
             }
         }
 
-        // If we only have one entity type and it matches the parent entity, just show IDs
-        // This prevents redundancy like "plenty_order: Plenty Order 7742, 7741, 7740"
-        if (count($parts) === 1) {
-            $part = reset($parts);
-            if ($part['raw_type'] === $entity) {
-                return $part['id'];
+        if (!empty($indexers)) {
+            $parts = [];
+            foreach ($indexers as $name => $count) {
+                $parts[] = "$name($count)";
+            }
+            $lines[] = sprintf('%d indexer(s) refreshed: %s', count($indexers), implode(' · ', $parts));
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Build the indented "→" sub-lines under an entity headline.
+     * Rolls up: create/update counts (also feeds $totalProductsWritten by reference),
+     * URL rewrites, categories assigned, super attributes, MSI / catalog inventory stock.
+     */
+    private function buildEntityRollup(array $entityMessages, int &$totalProductsWritten): array
+    {
+        $created = 0;
+        $updated = 0;
+        $urlRewrites = 0;
+        $categoriesAssigned = 0;
+        $superAttributes = [];
+        $msiTouched = false;
+
+        foreach ($entityMessages as $msg) {
+            if (($msg['status'] ?? '') !== 'success') {
+                continue;
+            }
+
+            $m = (string) ($msg['message'] ?? '');
+            $md = $msg['metadata'] ?? [];
+
+            if (str_starts_with($m, 'Created new product:')) {
+                $created++;
+                $totalProductsWritten++;
+            } elseif (str_starts_with($m, 'Updated product:')) {
+                $updated++;
+                $totalProductsWritten++;
+            } elseif (str_starts_with($m, 'Generated ') && str_contains($m, 'URL rewrite')) {
+                $urlRewrites += (int) ($md['total_count'] ?? 1);
+            } elseif (preg_match('/^Assigned (\d+) new categor/', $m, $matches)) {
+                $categoriesAssigned += (int) $matches[1];
+            } elseif (!empty($md['added_attributes']) && is_array($md['added_attributes'])) {
+                $superAttributes = array_merge($superAttributes, $md['added_attributes']);
+            } elseif (str_contains($m, 'MSI stock') || str_contains($m, 'catalog inventory stock')) {
+                $msiTouched = true;
             }
         }
 
-        // Build full summary with type labels for multiple entity types
-        $summary = [];
-        foreach ($parts as $part) {
-            $summary[] = $part['type'] . ' ' . $part['id'];
+        $lines = [];
+        $headline = [];
+
+        if ($created || $updated) {
+            $cu = [];
+            if ($created) {
+                $cu[] = "$created created";
+            }
+            if ($updated) {
+                $cu[] = "$updated updated";
+            }
+            $headline[] = implode('/', $cu) . ' product(s)';
+        }
+        if ($categoriesAssigned) {
+            $headline[] = sprintf(
+                '%d categor%s assigned',
+                $categoriesAssigned,
+                $categoriesAssigned === 1 ? 'y' : 'ies'
+            );
+        }
+        if ($urlRewrites) {
+            $headline[] = sprintf('%d URL rewrite%s', $urlRewrites, $urlRewrites === 1 ? '' : 's');
+        }
+        if ($msiTouched) {
+            $headline[] = 'MSI stock written';
         }
 
-        return implode(' | ', $summary);
+        if (!empty($headline)) {
+            $lines[] = implode(' · ', $headline);
+        }
+        if (!empty($superAttributes)) {
+            $lines[] = 'super attributes: ' . implode(', ', array_unique($superAttributes));
+        }
+
+        return $lines;
+    }
+
+    /**
+     * Best-effort SKU/name extraction for the entity headline.
+     * Prefers metadata.sku from any create/update message (carried by the parent
+     * product's "Created/Updated new product:" emission); falls back to parsing
+     * the message text "Created new product: <NAME> (ID: ...)".
+     */
+    private function findEntityName(array $entityMessages): ?string
+    {
+        foreach ($entityMessages as $msg) {
+            $md = $msg['metadata'] ?? [];
+            if (!empty($md['sku'])) {
+                return (string) $md['sku'];
+            }
+        }
+        foreach ($entityMessages as $msg) {
+            $text = (string) ($msg['message'] ?? '');
+            if (preg_match('/^(?:Created new|Updated) product: (.+?)\s+\(ID:/', $text, $matches)) {
+                return trim($matches[1]);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Compact display name for Magento indexer codes.
+     */
+    private function shortenIndexerName(string $indexer): string
+    {
+        return match ($indexer) {
+            'catalog_product_price' => 'prices',
+            'catalog_product_attribute' => 'eav',
+            'catalog_product_category' => 'product→cat',
+            'catalog_category_product' => 'cat→product',
+            'catalogsearch_fulltext' => 'fulltext',
+            'cataloginventory_stock' => 'stock',
+            default => $indexer,
+        };
     }
 }
