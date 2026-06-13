@@ -212,14 +212,17 @@ class ConsoleRenderer implements RendererInterface
 
         if ($entityType !== null) {
             $type = ucwords(str_replace('_', ' ', $entityType));
-            $line = ($displayName !== null ? $displayName . ' — ' : '') . $type;
+            // Skip the displayName prefix when it duplicates the entity key
+            // (e.g. attribute messages bucket on attribute_code AND set attribute_code in metadata).
+            $showName = $displayName !== null && (string) $displayName !== (string) $entity;
+            $line = ($showName ? $displayName . ' — ' : '') . $type;
             if ($action !== null) {
                 $stateStr = str_replace('_', ' ', $action);
                 if ($action === 'skipped' && $skipReason !== null) {
                     $stateStr .= ': ' . str_replace('_', ' ', $skipReason);
                 }
                 $line .= ' (' . $stateStr . ')';
-            } elseif ($displayName === null && $idValue !== null) {
+            } elseif (!$showName && $idValue !== null) {
                 $line .= ' ' . $idValue;
             }
             return $line;
