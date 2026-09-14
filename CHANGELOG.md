@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-09-14
+### Added
+- add per-entity overall status resolution to MessageCollector
+
 ## [3.0.0] - 2026-06-13
 ### BREAKING CHANGES
 - Rebrand SoftCommerce → Byte8: Composer vendor moved to `byte8/*`, PHP namespace root moved to `Byte8\`
