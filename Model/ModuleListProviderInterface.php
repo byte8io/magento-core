@@ -20,4 +20,18 @@ interface ModuleListProviderInterface
      * @return mixed|null
      */
     public function getList(?string $moduleName = null, ?string $metadata = null);
+
+    /**
+     * The installed suite metapackage, if any.
+     *
+     * @return array|null ['package_name' => string, 'package_version' => string]
+     */
+    public function getSuite(): ?array;
+
+    /**
+     * Package names the suite metapackage requires (its member modules).
+     *
+     * @return string[]
+     */
+    public function getSuiteRequire(): array;
 }

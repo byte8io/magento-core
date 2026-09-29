@@ -27,6 +27,16 @@ class ModuleListProvider implements ModuleListProviderInterface
     private ?array $data = null;
 
     /**
+     * @var array|null
+     */
+    private ?array $suite = null;
+
+    /**
+     * @var string[]
+     */
+    private array $suiteRequire = [];
+
+    /**
      * @param ComponentRegistrar $componentRegistrar
      * @param DirectoryList $directoryList
      * @param ReadFactory $readDirFactory
@@ -58,6 +68,30 @@ class ModuleListProvider implements ModuleListProviderInterface
         return null !== $metadata
             ? ($this->data[$moduleName][$metadata] ?? null)
             : ($this->data[$moduleName] ?? null);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSuite(): ?array
+    {
+        if (null === $this->data) {
+            $this->initData();
+        }
+
+        return $this->suite;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSuiteRequire(): array
+    {
+        if (null === $this->data) {
+            $this->initData();
+        }
+
+        return $this->suiteRequire;
     }
 
     /**
@@ -114,14 +148,33 @@ class ModuleListProvider implements ModuleListProviderInterface
         }
 
         foreach ($rawData['packages'] ?? [] as $package) {
-            if ($this->isVendorPackage($package['name'] ?? '')) {
-                $this->data[$package['name']] = [
-                    'name' => $package['name'],
-                    'package_name' => $package['name'],
-                    'package_description' => '',
+            $packageName = $package['name'] ?? '';
+            if (!$this->isVendorPackage($packageName)) {
+                continue;
+            }
+
+            // Capture the suite metapackage and the modules it requires so the
+            // admin can distinguish "part of your suite" from standalone add-ons.
+            if (($package['type'] ?? '') === 'metapackage' && null === $this->suite) {
+                $this->suite = [
+                    'name' => $packageName,
+                    'package_name' => $packageName,
                     'package_version' => $package['version'] ?? 'n/a',
                 ];
+                foreach (array_keys($package['require'] ?? []) as $requiredName) {
+                    if ($this->isVendorPackage($requiredName)) {
+                        $this->suiteRequire[] = $requiredName;
+                    }
+                }
+                continue;
             }
+
+            $this->data[$packageName] = [
+                'name' => $packageName,
+                'package_name' => $packageName,
+                'package_description' => '',
+                'package_version' => $package['version'] ?? 'n/a',
+            ];
         }
     }
 

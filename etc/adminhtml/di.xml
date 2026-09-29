@@ -19,4 +19,168 @@
             </argument>
         </arguments>
     </type>
+
+    <preference for="Byte8\Core\Model\ModuleCatalogInterface" type="Byte8\Core\Model\ModuleCatalog"/>
+
+    <!-- Installed Modules admin panel: single source of truth for every Byte8 product.
+         category: suite | product (upsold when not installed) | addon (companion, not upsold)
+                 | custom (bespoke) | hidden (dev/infra). package_name auto-hides a product
+         from the "Discover more" upsell once its module is installed. -->
+    <type name="Byte8\Core\Model\ModuleCatalog">
+        <arguments>
+            <argument name="products" xsi:type="array">
+                <!-- Suite metapackage (rendered as the hero) -->
+                <item name="magento-plentyone-suite" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/magento-plentyone-suite</item>
+                    <item name="display_name" xsi:type="string">Magento ⟷ PlentyONE Suite</item>
+                    <item name="category" xsi:type="string">suite</item>
+                </item>
+                <item name="magento-plentyone-suite-ac" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/magento-plentyone-suite-ac</item>
+                    <item name="display_name" xsi:type="string">Magento ⟷ PlentyONE Suite (Adobe Commerce)</item>
+                    <item name="category" xsi:type="string">suite</item>
+                </item>
+
+                <!-- Sellable products: Tier 2 when installed, Tier 3 upsell when not -->
+                <item name="stock-radar" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-stock-radar</item>
+                    <item name="display_name" xsi:type="string">Stock Radar</item>
+                    <item name="tagline" xsi:type="string">Back-in-stock demand heatmap enriched with live ERP stock &amp; inbound POs.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/integrations/stock-radar</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="preorder" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-preorder</item>
+                    <item name="display_name" xsi:type="string">Preorder</item>
+                    <item name="tagline" xsi:type="string">Sell items before stock lands and reconcile fulfilment when it arrives.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/integrations/preorder</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="pulsar" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-pulsar</item>
+                    <item name="display_name" xsi:type="string">Pulsar</item>
+                    <item name="tagline" xsi:type="string">Uptime monitoring &amp; synthetic checkout checks — know your store &amp; sync are healthy before customers do.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/products/pulsar</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <!-- TODO: set package_name (byte8/module-*) for these so they auto-hide once installed -->
+                <item name="vat-validator" xsi:type="array">
+                    <item name="display_name" xsi:type="string">VAT Validator</item>
+                    <item name="tagline" xsi:type="string">EU VIES + UK HMRC + Swiss UID validation over modern HTTP — no Magento SOAP.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/integrations/vat-validator</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="pmi-registration" xsi:type="array">
+                    <item name="display_name" xsi:type="string">PMI Registration</item>
+                    <item name="tagline" xsi:type="string">A checkout registration step with double-opt-in consent, built for DACH compliance.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/integrations/pmi-registration</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="pingbell" xsi:type="array">
+                    <item name="display_name" xsi:type="string">Pingbell</item>
+                    <item name="tagline" xsi:type="string">Push five key Magento events to phone, desktop and watch in real time.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/integrations/pingbell</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="velafront" xsi:type="array">
+                    <item name="display_name" xsi:type="string">Velafront</item>
+                    <item name="tagline" xsi:type="string">Headless storefront with Magento Page Builder rendered natively.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/integrations/velafront</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+
+                <!-- Companion add-ons: shown when installed, not upsold (need a base extension) -->
+                <item name="packstation" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-packstation</item>
+                    <item name="display_name" xsi:type="string">Packstation</item>
+                    <item name="tagline" xsi:type="string">DHL Packstation &amp; Postfiliale delivery addresses at checkout.</item>
+                    <item name="docs_url" xsi:type="string">https://docs.byte8.io/plentyone/docs/extensions/packstation</item>
+                    <item name="category" xsi:type="string">addon</item>
+                </item>
+                <item name="amasty-cashondelivery" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-amasty-cashondelivery</item>
+                    <item name="display_name" xsi:type="string">Amasty Cash on Delivery</item>
+                    <item name="tagline" xsi:type="string">Maps Amasty COD payment &amp; fees through to PlentyONE orders.</item>
+                    <item name="docs_url" xsi:type="string">https://docs.byte8.io/plentyone/docs/extensions/amasty-cash-on-delivery</item>
+                    <item name="category" xsi:type="string">addon</item>
+                </item>
+                <item name="amasty-giftcard" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-amasty-giftcard</item>
+                    <item name="display_name" xsi:type="string">Amasty Gift Card</item>
+                    <item name="tagline" xsi:type="string">Syncs Amasty gift-card sales &amp; redemptions into PlentyONE.</item>
+                    <item name="docs_url" xsi:type="string">https://docs.byte8.io/plentyone/docs/extensions/amasty-gift-card</item>
+                    <item name="category" xsi:type="string">addon</item>
+                </item>
+                <item name="amasty-rewards" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-amasty-rewards</item>
+                    <item name="display_name" xsi:type="string">Amasty Rewards</item>
+                    <item name="tagline" xsi:type="string">Carries Amasty reward-point transactions through to PlentyONE.</item>
+                    <item name="docs_url" xsi:type="string">https://docs.byte8.io/plentyone/docs/extensions/amasty-rewards</item>
+                    <item name="category" xsi:type="string">addon</item>
+                </item>
+                <item name="swissup-checkout-fields" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-swissup-checkout-fields</item>
+                    <item name="display_name" xsi:type="string">Swissup Checkout Fields</item>
+                    <item name="tagline" xsi:type="string">Maps custom Swissup checkout fields onto PlentyONE order properties.</item>
+                    <item name="docs_url" xsi:type="string">https://docs.byte8.io/plentyone/docs/extensions/swissup-checkout-fields</item>
+                    <item name="category" xsi:type="string">addon</item>
+                </item>
+                <item name="storefront" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-storefront</item>
+                    <item name="display_name" xsi:type="string">PlentyONE Storefront</item>
+                    <item name="tagline" xsi:type="string">Storefront helpers that keep Magento presentation aligned with PlentyONE data.</item>
+                    <item name="docs_url" xsi:type="string">https://docs.byte8.io/plentyone/docs/extensions/plenty-storefront</item>
+                    <item name="category" xsi:type="string">addon</item>
+                </item>
+                <item name="url-rewrite-generator" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-url-rewrite-generator</item>
+                    <item name="display_name" xsi:type="string">URL Rewrite Generator</item>
+                    <item name="tagline" xsi:type="string">Bulk-generate and repair Magento catalog URL rewrites.</item>
+                    <item name="category" xsi:type="string">addon</item>
+                </item>
+
+                <!-- Custom builds (bespoke; no marketing links, never upsold) -->
+                <item name="steelman24" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-steelman24</item>
+                    <item name="display_name" xsi:type="string">SteelMan24</item>
+                    <item name="tagline" xsi:type="string">Bespoke integration built for this store.</item>
+                    <item name="category" xsi:type="string">custom</item>
+                </item>
+                <item name="dampfi" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-dampfi</item>
+                    <item name="display_name" xsi:type="string">Dampfi</item>
+                    <item name="tagline" xsi:type="string">Bespoke integration built for this store.</item>
+                    <item name="category" xsi:type="string">custom</item>
+                </item>
+                <item name="wohnhaus-welten" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-wohnhaus-welten</item>
+                    <item name="display_name" xsi:type="string">Wohnhaus Welten</item>
+                    <item name="tagline" xsi:type="string">Bespoke integration built for this store.</item>
+                    <item name="category" xsi:type="string">custom</item>
+                </item>
+
+                <!-- Hidden (dev / infrastructure — never shown to merchants) -->
+                <item name="faker-suite" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-faker-suite</item>
+                    <item name="category" xsi:type="string">hidden</item>
+                </item>
+                <item name="utils" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-utils</item>
+                    <item name="category" xsi:type="string">hidden</item>
+                </item>
+                <item name="inventory-configurable-product" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-inventory-configurable-product</item>
+                    <item name="category" xsi:type="string">hidden</item>
+                </item>
+                <item name="plenty-category-staging" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-category-staging</item>
+                    <item name="category" xsi:type="string">hidden</item>
+                </item>
+                <item name="plenty-item-staging" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-plenty-item-staging</item>
+                    <item name="category" xsi:type="string">hidden</item>
+                </item>
+            </argument>
+        </arguments>
+    </type>
 </config>
