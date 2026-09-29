@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-09-29
+### Added
+- redesign Installed Modules admin panel with tiered add-on discovery
+
 ## [3.2.0] - 2026-09-14
 ### Added
 - add per-entity overall status resolution to MessageCollector
