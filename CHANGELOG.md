@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > `softcommerceltd/magento-core`; their compare links point there.
 
 ## [Unreleased]
+### Added
+- Installed Modules panel now surfaces the full Byte8 range in the discovery tier: Orbit (zero-downtime deployments), Horizon (AI catalog gateway), Sage / Xero / FreeAgent accounting connectors, SEO Suite, Cargoman private Composer registry and Magento Support & Maintenance retainers
+- catalog entries can declare `alt_package_names` so a product shipped under several composer names (PlentyONE-coupled vs standalone builds of Stock Radar and Preorder) is recognised as installed under either name — no more upselling an extension the merchant already runs
+- VAT Validator and Pingbell catalog entries carry their composer package names, so they auto-hide from the discovery tier once installed
+
+### Fixed
+- `byte8/module-core` itself no longer renders as an installed "Core" add-on row — it is infrastructure, not a product
 
 ## [3.3.0] - 2026-09-29
 ### Added

@@ -44,6 +44,9 @@
                 <!-- Sellable products: Tier 2 when installed, Tier 3 upsell when not -->
                 <item name="stock-radar" xsi:type="array">
                     <item name="package_name" xsi:type="string">byte8/module-plenty-stock-radar</item>
+                    <item name="alt_package_names" xsi:type="array">
+                        <item name="standalone" xsi:type="string">byte8/module-stock-radar</item>
+                    </item>
                     <item name="display_name" xsi:type="string">Stock Radar</item>
                     <item name="tagline" xsi:type="string">Back-in-stock demand heatmap enriched with live ERP stock &amp; inbound POs.</item>
                     <item name="url" xsi:type="string">https://byte8.io/integrations/stock-radar</item>
@@ -51,6 +54,9 @@
                 </item>
                 <item name="preorder" xsi:type="array">
                     <item name="package_name" xsi:type="string">byte8/module-plenty-preorder</item>
+                    <item name="alt_package_names" xsi:type="array">
+                        <item name="standalone" xsi:type="string">byte8/module-preorder</item>
+                    </item>
                     <item name="display_name" xsi:type="string">Preorder</item>
                     <item name="tagline" xsi:type="string">Sell items before stock lands and reconcile fulfilment when it arrives.</item>
                     <item name="url" xsi:type="string">https://byte8.io/integrations/preorder</item>
@@ -63,25 +69,80 @@
                     <item name="url" xsi:type="string">https://byte8.io/products/pulsar</item>
                     <item name="category" xsi:type="string">product</item>
                 </item>
-                <!-- TODO: set package_name (byte8/module-*) for these so they auto-hide once installed -->
+                <item name="orbit" xsi:type="array">
+                    <item name="display_name" xsi:type="string">Orbit</item>
+                    <item name="tagline" xsi:type="string">Zero-downtime Magento deployments — atomic swaps, traffic hold &amp; auto-rollback. No more 2 AM windows.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/products/orbit</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="horizon" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-horizon</item>
+                    <item name="display_name" xsi:type="string">Horizon</item>
+                    <item name="tagline" xsi:type="string">MCP gateway that makes your catalog discoverable by AI agents — Claude, ChatGPT, Perplexity &amp; buyer agents.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/products/horizon</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="sage-accounting" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/magento-sage-accounting</item>
+                    <item name="display_name" xsi:type="string">Sage Accounting</item>
+                    <item name="tagline" xsi:type="string">Hosted connector: Magento invoices, contacts, stock &amp; payments into Sage Business Cloud.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/products/sage-accounting</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="xero-accounting" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/magento-xero-accounting</item>
+                    <item name="display_name" xsi:type="string">Xero</item>
+                    <item name="tagline" xsi:type="string">Hosted connector: bidirectional Magento ⟷ Xero sync with multi-store, multi-currency &amp; B2B depth.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/products/xero</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="freeagent-accounting" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/magento-freeagent-accounting</item>
+                    <item name="display_name" xsi:type="string">FreeAgent</item>
+                    <item name="tagline" xsi:type="string">Hosted Magento → FreeAgent connector sized for small businesses — invoices, contacts &amp; payments.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/products/freeagent</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="seo-suite" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-seosuite</item>
+                    <item name="display_name" xsi:type="string">SEO Suite</item>
+                    <item name="tagline" xsi:type="string">AI-native on-page SEO toolkit — hreflang, canonicals, JSON-LD, meta templates &amp; per-store robots.txt.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/integrations/seo-suite</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="cargoman" xsi:type="array">
+                    <item name="display_name" xsi:type="string">Cargoman</item>
+                    <item name="tagline" xsi:type="string">Private Composer registry — host, version &amp; distribute private PHP packages with per-customer access.</item>
+                    <item name="url" xsi:type="string">https://cargoman.io</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
+                <item name="magento-support" xsi:type="array">
+                    <item name="display_name" xsi:type="string">Magento Support &amp; Maintenance</item>
+                    <item name="tagline" xsi:type="string">Monthly retainers from the team behind this connector — upgrades, patches, monitoring &amp; an expert on call.</item>
+                    <item name="url" xsi:type="string">https://byte8.io/services/magento-support</item>
+                    <item name="category" xsi:type="string">product</item>
+                </item>
                 <item name="vat-validator" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-vat-validator</item>
                     <item name="display_name" xsi:type="string">VAT Validator</item>
                     <item name="tagline" xsi:type="string">EU VIES + UK HMRC + Swiss UID validation over modern HTTP — no Magento SOAP.</item>
                     <item name="url" xsi:type="string">https://byte8.io/integrations/vat-validator</item>
                     <item name="category" xsi:type="string">product</item>
                 </item>
-                <item name="pmi-registration" xsi:type="array">
-                    <item name="display_name" xsi:type="string">PMI Registration</item>
-                    <item name="tagline" xsi:type="string">A checkout registration step with double-opt-in consent, built for DACH compliance.</item>
-                    <item name="url" xsi:type="string">https://byte8.io/integrations/pmi-registration</item>
-                    <item name="category" xsi:type="string">product</item>
-                </item>
+<!--                <item name="pmi-registration" xsi:type="array">-->
+<!--                    <item name="display_name" xsi:type="string">PMI Registration</item>-->
+<!--                    <item name="tagline" xsi:type="string">A checkout registration step with double-opt-in consent, built for DACH compliance.</item>-->
+<!--                    <item name="url" xsi:type="string">https://byte8.io/integrations/pmi-registration</item>-->
+<!--                    <item name="category" xsi:type="string">product</item>-->
+<!--                </item>-->
                 <item name="pingbell" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-pingbell</item>
                     <item name="display_name" xsi:type="string">Pingbell</item>
                     <item name="tagline" xsi:type="string">Push five key Magento events to phone, desktop and watch in real time.</item>
                     <item name="url" xsi:type="string">https://byte8.io/integrations/pingbell</item>
                     <item name="category" xsi:type="string">product</item>
                 </item>
+                <!-- TODO: set package_name once the velafront module ships to the registry -->
                 <item name="velafront" xsi:type="array">
                     <item name="display_name" xsi:type="string">Velafront</item>
                     <item name="tagline" xsi:type="string">Headless storefront with Magento Page Builder rendered natively.</item>
@@ -160,6 +221,10 @@
                 </item>
 
                 <!-- Hidden (dev / infrastructure — never shown to merchants) -->
+                <item name="core" xsi:type="array">
+                    <item name="package_name" xsi:type="string">byte8/module-core</item>
+                    <item name="category" xsi:type="string">hidden</item>
+                </item>
                 <item name="faker-suite" xsi:type="array">
                     <item name="package_name" xsi:type="string">byte8/module-faker-suite</item>
                     <item name="category" xsi:type="string">hidden</item>

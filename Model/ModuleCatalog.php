@@ -44,6 +44,14 @@ class ModuleCatalog implements ModuleCatalogInterface
             if (!empty($product['package_name'])) {
                 $byPackage[$product['package_name']] = $product;
             }
+            // A product can ship under more than one composer name (e.g.
+            // the PlentyONE-coupled and standalone builds of the same
+            // extension). Alt names resolve to the same catalog entry so
+            // either install suppresses the upsell and renders with the
+            // proper display name instead of a humanized package name.
+            foreach ($product['alt_package_names'] ?? [] as $altName) {
+                $byPackage[$altName] = $product;
+            }
         }
 
         $installed = $this->normalize($this->moduleListProvider->getList() ?: []);
@@ -111,11 +119,20 @@ class ModuleCatalog implements ModuleCatalogInterface
             if (($product['category'] ?? '') !== 'product') {
                 continue;
             }
-            $packageName = $product['package_name'] ?? '';
-            if ($packageName !== ''
-                && isset($installed[$packageName])
-                && !empty($installed[$packageName]['package_version'])
-            ) {
+            $candidateNames = array_filter(array_merge(
+                [$product['package_name'] ?? ''],
+                $product['alt_package_names'] ?? []
+            ));
+            $isInstalled = false;
+            foreach ($candidateNames as $packageName) {
+                if (isset($installed[$packageName])
+                    && !empty($installed[$packageName]['package_version'])
+                ) {
+                    $isInstalled = true;
+                    break;
+                }
+            }
+            if ($isInstalled) {
                 continue;
             }
             if (empty($product['url'])) {
