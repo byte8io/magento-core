@@ -136,4 +136,9 @@
             <argument name="logger" xsi:type="object">Byte8\Core\Activation\Logger\Logger</argument>
         </arguments>
     </type>
+
+    <!-- cron ::: unschedule jobs whose "enabled" flag is off (jobs are registered per module) -->
+    <type name="Magento\Cron\Model\ConfigInterface">
+        <plugin name="byte8_core_unschedule_disabled_jobs" type="Byte8\Core\Plugin\Cron\UnscheduleDisabledJobsPlugin"/>
+    </type>
 </config>
