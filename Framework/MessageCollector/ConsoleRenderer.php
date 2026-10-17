@@ -81,9 +81,14 @@ class ConsoleRenderer implements RendererInterface
             }
             $totalErrors += $stats['error'];
 
-            $statusIcon = $stats['error'] > 0 ? '<error>✗</error>' : '<info>✓</info>';
+            $statusIcon = match (true) {
+                $stats['error'] > 0 => '<error>✗</error>',
+                ($stats['warning'] ?? 0) > 0 => '<comment>⚠</comment>',
+                default => '<info>✓</info>'
+            };
             $headline = $this->buildEntitySummary($entity, $entityMessages, $idField);
             $rollupLines = $this->buildEntityRollup($entityMessages, $totalProductsWritten);
+            $issueLines = $this->buildEntityIssueLines($entityMessages);
 
             $this->output->writeln('');
             $this->output->writeln(sprintf(
@@ -94,6 +99,9 @@ class ConsoleRenderer implements RendererInterface
             ));
             foreach ($rollupLines as $rollup) {
                 $this->output->writeln('           <fg=gray>→</> ' . $rollup);
+            }
+            foreach ($issueLines as $issue) {
+                $this->output->writeln('           ' . $issue);
             }
         }
 
@@ -156,7 +164,8 @@ class ConsoleRenderer implements RendererInterface
      *   1. Anchor message with metadata.product_type → "<name> — <Type> (new|updated), N variation(s)"
      *   2. Legacy metadata.entity_type + idField → "<Type> <id>" (preserves non-product CLI summaries)
      *   3. Count of "Created/Updated new product:" messages → "N created/updated"
-     *   4. First message text (last-resort fallback)
+     *   4. First error, then first warning, then first message text (last-resort fallback), so the
+     *      headline explains its status icon instead of showing a success text next to a failure
      */
     private function buildEntitySummary(int|string $entity, array $entityMessages, string $idField = 'entity_id'): string
     {
@@ -253,8 +262,57 @@ class ConsoleRenderer implements RendererInterface
             return implode(', ', $countParts) . ' product(s)';
         }
 
-        // 4. Last resort
-        return isset($entityMessages[0]['message']) ? (string) $entityMessages[0]['message'] : '';
+        // 4. Last resort: prefer the first error, then the first warning, over the first message
+        $message = $this->findMessageByStatus($entityMessages, ['error', 'critical', 'failed'])
+            ?? $this->findMessageByStatus($entityMessages, ['warning'])
+            ?? ($entityMessages[0] ?? null);
+
+        return isset($message['message']) ? (string) $message['message'] : '';
+    }
+
+    /**
+     * Return the first message of an entity whose status is one of the given statuses.
+     *
+     * @param array $entityMessages
+     * @param string[] $statuses Status keys to look for, e.g. ['error', 'critical']
+     * @return array|null
+     */
+    private function findMessageByStatus(array $entityMessages, array $statuses): ?array
+    {
+        foreach ($entityMessages as $msg) {
+            if (in_array($msg['status'] ?? 'info', $statuses, true)) {
+                return $msg;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Build the indented error / warning sub-lines under an entity headline, so the reason for a
+     * ✗ or ⚠ status is visible without --verbose. The rollup only aggregates success messages.
+     *
+     * @param array $entityMessages
+     * @return string[]
+     */
+    private function buildEntityIssueLines(array $entityMessages): array
+    {
+        $lines = [];
+        foreach ($entityMessages as $msg) {
+            $status = $msg['status'] ?? 'info';
+            $text = (string) ($msg['message'] ?? '');
+            if ($text === '') {
+                continue;
+            }
+
+            if (in_array($status, ['error', 'critical', 'failed'], true)) {
+                $lines[] = '<error>✗</error> ' . $text;
+            } elseif ($status === 'warning') {
+                $lines[] = '<comment>⚠</comment> ' . $text;
+            }
+        }
+
+        return $lines;
     }
 
     /**

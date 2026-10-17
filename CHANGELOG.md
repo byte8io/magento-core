@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `byte8/module-core` itself no longer renders as an installed "Core" add-on row — it is infrastructure, not a product
 
+### Changed
+- console summary lists an entity's error and warning messages as sub-lines, marks warning-only entities with ⚠, and the last-resort headline prefers the first error, so a failed entity no longer reads as a success
+
+
 ## [3.3.0] - 2026-09-29
 ### Added
 - redesign Installed Modules admin panel with tiered add-on discovery
