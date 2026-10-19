@@ -20,7 +20,10 @@ class StatusToFaMapping implements StatusToFaMappingInterface
      * @var string[]
      */
     private array $map = [
-        StatusInterface::CRITICAL => 'fa-solid fa-octagon-exclamation',
+        // fa-octagon-exclamation is a FontAwesome Pro glyph - not present in the
+        // Free build we load, so it always rendered as an empty box. Use the
+        // Free skull-crossbones to keep CRITICAL visually distinct from ERROR.
+        StatusInterface::CRITICAL => 'fa-solid fa-skull-crossbones',
         StatusInterface::ERROR => 'fa-solid fa-circle-exclamation',
         StatusInterface::FAILED => 'fa-solid fa-circle-exclamation',
         StatusInterface::NOTICE => 'fa-solid fa-exclamation',

@@ -70,7 +70,7 @@
                 <field id="fontawesome_resource" translate="label" type="text" sortOrder="2" showInDefault="1">
                     <label>Fontawesome host URL</label>
                     <validate>validate-url validate-no-html-tags</validate>
-                    <comment>Default source: https://use.fontawesome.com/releases/v6.1.1/css/all.css</comment>
+                    <comment>Leave empty to use the Font Awesome Free copy bundled with the module (recommended; served from your own domain, so it works under any Content-Security-Policy). Set a URL only to load an external build instead, e.g. a Font Awesome Pro kit.</comment>
                     <depends>
                         <field id="is_active_fontawesome">1</field>
                     </depends>
