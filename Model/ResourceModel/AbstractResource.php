@@ -265,15 +265,15 @@ abstract class AbstractResource extends AbstractDb
     }
 
     /**
-     * @param string $status
+     * @param string|int $status
      * @param array $entityIds
      * @param string $fieldName
      * @return int
      * @throws LocalizedException
      */
-    public function updateStatus(string $status = 'pending', array $entityIds = [], string $fieldName = 'status'): int
+    public function updateStatus(string|int $status = 'pending', array $entityIds = [], string $fieldName = 'status'): int
     {
-        $data = [$fieldName => $status];
+        $data = [$fieldName => (string) $status];
         $where = empty($entityIds) ? '' : [$this->getIdFieldName() . ' in (?)' => $entityIds];
         return (int) $this->getConnection()->update($this->getMainTable(), $data, $where);
     }
