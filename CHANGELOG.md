@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > `softcommerceltd/magento-core`; their compare links point there.
 
 ## [Unreleased]
+
+## [3.5.0] - 2026-11-16
 ### Added
 - Installed Modules panel now surfaces the full Byte8 range in the discovery tier: Orbit (zero-downtime deployments), Horizon (AI catalog gateway), Sage / Xero / FreeAgent accounting connectors, SEO Suite, Cargoman private Composer registry and Magento Support & Maintenance retainers
 - catalog entries can declare `alt_package_names` so a product shipped under several composer names (PlentyONE-coupled vs standalone builds of Stock Radar and Preorder) is recognised as installed under either name — no more upselling an extension the merchant already runs
@@ -22,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - console summary lists an entity's error and warning messages as sub-lines, marks warning-only entities with ⚠, and the last-resort headline prefers the first error, so a failed entity no longer reads as a success
-
 
 ## [3.3.0] - 2026-09-29
 ### Added
